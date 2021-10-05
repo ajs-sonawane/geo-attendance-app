@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 exports.users_get_all = function (req, res, next) {
 
     User.find()
-        .select("_id email password")
+        .select("_id name mobile email password")
         .exec()
         .then(docs => {
             if (docs.length > 0) {
@@ -77,6 +77,7 @@ exports.user_signin = function (req, res, next) {
                     return res.status(200).json({
                         code: 1,
                         message: "Auth success",
+                        role: doc, 
                         token: token
                     });
                 }
