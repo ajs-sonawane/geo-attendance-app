@@ -17,6 +17,7 @@ exports.users_get_all = function (req, res, next) {
                     result: docs.map(doc => {
                         return {
                             user_id: doc._id,
+                            role: doc.role,
                             name: doc.name,
                             mobile: doc.mobile,
                             email: doc.email
