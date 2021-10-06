@@ -14,22 +14,16 @@ exports.users_get_all = function (req, res, next) {
                     code: 1,
                     count: docs.length,
                     message: "success",
-                    result: {
-                        user_id: docs[0]._id,
-                        name: docs[0].name,
-                        mobile: docs[0].mobile,
-                        email: docs[0].email
-                    }
-                    // .map(doc => {
-                    //     return {
-                    //         _id: doc._id,
-                    //         comp_name: doc.comp_name
-                    //         // request: {
-                    //         //     type: "GET",
-                    //         //     url: "http://localhost:3000/companies/" + doc._id
-                    //         // }
-                    //     }
-                    // })
+                    result: docs.map(doc => {
+                        return {
+                            user_id: doc._id,
+                            name: doc.name,
+                            mobile: doc.mobile,
+                            email: doc.email
+
+
+                        }
+                    })
                 };
                 res.status(200).json(response);
             } else {
