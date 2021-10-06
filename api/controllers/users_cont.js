@@ -14,7 +14,12 @@ exports.users_get_all = function (req, res, next) {
                     code: 1,
                     count: docs.length,
                     message: "success",
-                    result: docs
+                    result: {
+                        user_id: docs[0]._id,
+                        name: docs[0].name,
+                        mobile: docs[0].mobile,
+                        email: docs[0].email
+                    }
                     // .map(doc => {
                     //     return {
                     //         _id: doc._id,
