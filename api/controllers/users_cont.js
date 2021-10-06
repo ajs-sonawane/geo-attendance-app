@@ -78,7 +78,13 @@ exports.user_signin = function (req, res, next) {
                         code: 1,
                         message: "Auth success",
                         token: token,
-                        data: doc
+                        data: {
+                            user_id: doc[0]._id,
+                            role: doc[0].role,
+                            name: doc[0].name,
+                            mobile: doc[0].mobile,
+                            email: doc[0].email
+                        }
                     });
                 }
                 res.status(401).json({
