@@ -4,10 +4,11 @@ const Att = require("../models/attendanceModel");
 
 exports.att_get_by_userid = function (req, res, next) {
 
-    Att.find({ user_id: req.params.user_id })
+    Att.find({ user_id: req.body.user_id })
         .select("_id user_id selfie datetime area coordinates")
         .exec()
         .then(docs => {
+            console.log("----------------- "+docs);
             if (docs.length > 0) {
                 const response = {
                     code: 1,
@@ -34,7 +35,7 @@ exports.att_get_by_userid = function (req, res, next) {
                 res.status(200).json({
                     code: 0,
                     message: "No enries found",
-                    result: docs
+                    data: docs
                 });
             }
 
