@@ -53,14 +53,16 @@ exports.att_save_or_update = function (req, res, next) {
     let area = req.body.area;
     let coordinates = req.body.coordinates;
 
-
     Att.find({ datetime: datetime })
         // .select("_id user_id full_name designation location objective profile_image")
         .exec()
         .then(docs => {
             if (docs.length > 0) {
-
-                res.status(200).json(response);
+                // console.log(" >>>> datetime >> TRUE");
+                res.status(200).json({
+                    code: 0,
+                    message: "Attendance for today already submitted."
+                });
 
                 // Profile.updateMany({ datetime: datetime },
                 //     {
@@ -82,17 +84,21 @@ exports.att_save_or_update = function (req, res, next) {
                 //     });
                 // res.status(200).json(response);
             } else {
-
+                // console.log(" >>>> datetime >> FALSE");
+                // console.log(">>>>> selfie <<<< " + selfie);
+                var split = selfie.replace(/\\/g, "/");
+                // console.log("split >>> " + split);
                 const att = Att(
                     {
                         _id: mongoose.Types.ObjectId(),
                         user_id: userID,
-                        selfie: selfie,
+                        selfie: split,
                         datetime: datetime,
                         area: area,
                         coordinates: coordinates
                     }
                 );
+
                 att.save()
                     .then(result => {
                         res.status(200).json({

@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 
 // const profileRoute = require("./api/routes/profile");
 const userRoutes = require("./api/routes/user");
+const attRoutes = require("./api/routes/attendance");
 
 ////////////////////////////////////////////////////// mongoose CONNECT ////////////////////
 mongoose.connect(
@@ -17,6 +18,7 @@ mongoose.connect(
 mongoose.Promise = global.Promise;
 
 app.use(morgan("dev"));
+app.use('/uploads', express.static('./uploads'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -36,6 +38,7 @@ app.use(function (req, res, next) {
 //////////////////////////////////////////////// ROUTES WHICH HANDLE REQUESTS ////////////////////////////////
 // app.use("/profile", profileRoute);
 app.use("/user", userRoutes);
+app.use("/att", attRoutes);
 
 app.get("/", function (req, res, next) {
     res.sendFile(__dirname + "/initialroute.html");
@@ -49,6 +52,7 @@ app.use(function (req, res, next) {
 });
 app.use(function (error, req, res, next) {
     res.status(error.status || 500);
+    console.log("error >>>>>> >>> "+error.message);
     res.json({
         error: {
             code: 0,

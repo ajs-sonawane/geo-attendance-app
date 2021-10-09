@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 exports.users_get_all = function (req, res, next) {
 
     User.find()
-        .select("_id name mobile email password")
+        .select("_id role name mobile email")
         .exec()
         .then(docs => {
             if (docs.length > 0) {
@@ -14,17 +14,16 @@ exports.users_get_all = function (req, res, next) {
                     code: 1,
                     count: docs.length,
                     message: "success",
-                    result: docs.map(doc => {
-                        return {
-                            user_id: doc._id,
-                            role: doc.role,
-                            name: doc.name,
-                            mobile: doc.mobile,
-                            email: doc.email
-
-
-                        }
-                    })
+                    data: docs
+                    // .map(doc => {
+                    //     return {
+                    //         user_id: doc._id,
+                    //         role: doc.role,
+                    //         name: doc.name,
+                    //         mobile: doc.mobile,
+                    //         email: doc.email
+                    //     }
+                    // })
                 };
                 res.status(200).json(response);
             } else {
