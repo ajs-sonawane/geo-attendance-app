@@ -36,7 +36,7 @@ const upload = multer({
 });
 
 
-router.get("/get_attendance_by_userid", AttController.att_get_by_userid);
+router.post("/get_attendance_by_userid", AttController.att_get_by_userid);
 
 router.post("/save_attendance", upload.single('selfie'), AttController.att_save_or_update);
 
