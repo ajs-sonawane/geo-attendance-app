@@ -93,7 +93,7 @@ exports.att_save_or_update = function (req, res, next) {
                     {
                         _id: mongoose.Types.ObjectId(),
                         user_id: userID,
-                        selfie: "https://geo-attendance-app.herokuapp.com" + "/" + split,
+                        selfie: split,
                         datetime: datetime,
                         area: area,
                         coordinates: coordinates
