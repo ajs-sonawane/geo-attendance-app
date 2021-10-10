@@ -8,7 +8,7 @@ exports.att_get_by_userid = function (req, res, next) {
         .select("_id user_id selfie datetime area coordinates")
         .exec()
         .then(docs => {
-            console.log("----------------- "+docs);
+            console.log("----------------- " + docs);
             if (docs.length > 0) {
                 const response = {
                     code: 1,
@@ -93,7 +93,7 @@ exports.att_save_or_update = function (req, res, next) {
                     {
                         _id: mongoose.Types.ObjectId(),
                         user_id: userID,
-                        selfie: split,
+                        selfie: "https://geo-attendance-app.herokuapp.com" + "/" + split,
                         datetime: datetime,
                         area: area,
                         coordinates: coordinates
