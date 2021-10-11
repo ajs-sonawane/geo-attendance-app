@@ -54,7 +54,11 @@ exports.att_save_or_update = function (req, res, next) {
     let area = req.body.area;
     let coordinates = req.body.coordinates;
 
-    Att.find({ datetime: datetime })
+    var date= datetime.split(" ", 2);
+    console.log("DATE >>>>>>> "+date);
+    console.log("DATE >>>>>>> "+datetime);
+
+    Att.find({ datetime: date })
         // .select("_id user_id full_name designation location objective profile_image")
         .exec()
         .then(docs => {
