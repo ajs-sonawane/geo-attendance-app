@@ -59,7 +59,7 @@ exports.att_save_or_update = function (req, res, next) {
     console.log("DATE >>>>>>> "+date);
     console.log("DATE >>>>>>> "+datetime);
 
-    Att.find({ datetime: date })
+    Att.find({ datetime: date[0] })
         // .select("_id user_id full_name designation location objective profile_image")
         .exec()
         .then(docs => {
