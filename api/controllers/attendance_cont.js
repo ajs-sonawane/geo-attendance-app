@@ -34,8 +34,9 @@ exports.att_get_by_userid = function (req, res, next) {
             } else {
                 res.status(200).json({
                     code: 0,
+                    count: docs.length,
                     message: "No enries found",
-                    data: docs
+                    result: docs
                 });
             }
 
