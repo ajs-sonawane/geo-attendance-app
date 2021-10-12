@@ -19,6 +19,7 @@ exports.att_get_by_userid = function (req, res, next) {
                             return {
                                 _id: doc._id,
                                 user_id: doc.user_id,
+                                name: doc.name,
                                 selfie: "https://geo-attendance-app.herokuapp.com" + "/" + doc.selfie,
                                 datetime: doc.datetime,
                                 area: doc.area,
@@ -55,11 +56,11 @@ exports.att_save_or_update = function (req, res, next) {
     let area = req.body.area;
     let coordinates = req.body.coordinates;
 
-    var date= datetime.split(" ", 2);
-    console.log("DATE >>>>>>> "+date);
-    console.log("DATE >>>>>>> "+datetime);
-
-    Att.find({ datetime: date[0] })
+    var date = datetime.split(" ", 2);
+    console.log("DATE >>>>>>> " + date[0]);
+    console.log("datetime >>>>>>> " + datetime);
+    const regex = new RegExp(date[0], 'i');
+    Att.find({ datetime: regex })
         // .select("_id user_id full_name designation location objective profile_image")
         .exec()
         .then(docs => {
