@@ -42,6 +42,45 @@ exports.users_get_all = function (req, res, next) {
         });
 };
 
+exports.employees_get_all = function (req, res, next) {
+
+    User.find({ role: req.body.role, mobile: req.body.mobile })
+        .select("_id role name mobile email")
+        .exec()
+        .then(docs => {
+            if (docs.length > 0) {
+                const response = {
+                    code: 1,
+                    count: docs.length,
+                    message: "success",
+                    data: docs
+                    // .map(doc => {
+                    //     return {
+                    //         user_id: doc._id,
+                    //         role: doc.role,
+                    //         name: doc.name,
+                    //         mobile: doc.mobile,
+                    //         email: doc.email
+                    //     }
+                    // })
+                };
+                res.status(200).json(response);
+            } else {
+                res.status(200).json({
+                    code: 0,
+                    message: "No enries found",
+                    data: docs
+                });
+            }
+
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
+};
+
 exports.user_signin = function (req, res, next) {
 
     let mobile = req.body.mobile;
