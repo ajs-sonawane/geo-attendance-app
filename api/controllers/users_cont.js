@@ -101,7 +101,7 @@ exports.user_signin = function (req, res, next) {
                     return res.status(401).json({
                         code: 0,
                         message: "Auth Failed!",
-                        token: null
+                        token: err
                     });
                 }
                 if (result) {
