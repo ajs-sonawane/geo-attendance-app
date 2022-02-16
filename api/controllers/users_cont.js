@@ -128,7 +128,7 @@ exports.user_signin = function (req, res, next) {
                 res.status(401).json({
                     code: 0,
                     message: "Auth Failed! TWO",
-                    token: null
+                    token: err
                 });
             });
         }).catch(err => {
