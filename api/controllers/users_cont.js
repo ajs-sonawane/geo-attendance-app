@@ -100,8 +100,8 @@ exports.user_signin = function (req, res, next) {
                 if (err) {
                     return res.status(401).json({
                         code: 0,
-                        message: "Auth Failed!",
-                        token: err
+                        message: "Auth Failed! ONE",
+                        token: null
                     });
                 }
                 if (result) {
@@ -127,7 +127,7 @@ exports.user_signin = function (req, res, next) {
                 }
                 res.status(401).json({
                     code: 0,
-                    message: "Auth Failed!",
+                    message: "Auth Failed! TWO",
                     token: null
                 });
             });
