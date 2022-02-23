@@ -51,7 +51,10 @@ exports.att_get_by_userid = function (req, res, next) {
 
 exports.att_save_or_update = function (req, res, next) {
     let userID = req.body.user_id;
-    let selfie = req.file.path;
+    let selfie = "";
+    if (selfie !== undefined){
+        selfie = req.file.path;
+    }
     let datetime = req.body.datetime;
     let area = req.body.area;
     let coordinates = req.body.coordinates;
