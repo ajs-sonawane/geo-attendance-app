@@ -51,17 +51,17 @@ exports.att_get_by_userid = function (req, res, next) {
 
 exports.att_save_or_update = function (req, res, next) {
     let userID = req.body.user_id;
-    let selfie = "";
-    if (selfie !== undefined){
-        selfie = req.file.path;
-    }
+    // let selfie = "";
+    // if (selfie == undefined) {
+    let selfie = req.file == undefined ? "" : req.file.path;
+    // }
     let datetime = req.body.datetime;
     let area = req.body.area;
     let coordinates = req.body.coordinates;
 
     var date = datetime.split(" ", 2);
-    console.log("DATE >>>>>>> " + date[0]);
-    console.log("datetime >>>>>>> " + datetime);
+    // console.log("DATE >>>>>>> " + date[0]);
+    // console.log("datetime >>>>>>> " + datetime);
     const regex = new RegExp(date[0], 'i');
     Att.find({ user_id: userID, datetime: regex })
         // .select("_id user_id full_name designation location objective profile_image")
@@ -96,13 +96,17 @@ exports.att_save_or_update = function (req, res, next) {
             } else {
                 // console.log(" >>>> datetime >> FALSE");
                 // console.log(">>>>> selfie <<<< " + selfie);
-                var split = selfie.replace(/\\/g, "/");
+
+                // if (selfie == undefined) {
+                // var split = selfie == undefined ? "" : selfie.replace(/\\/g, "/");
+                // }
+
                 // console.log("split >>> " + split);
                 const att = Att(
                     {
                         _id: mongoose.Types.ObjectId(),
                         user_id: userID,
-                        selfie: split,
+                        selfie: req.file == undefined ? "" : selfie.replace(/\\/g, "/"),
                         datetime: datetime,
                         area: area,
                         coordinates: coordinates
