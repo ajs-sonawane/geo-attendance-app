@@ -16,6 +16,7 @@ exports.att_get_by_userid = function (req, res, next) {
                     message: "success",
                     result: docs
                         .map(doc => {
+                            console.log("----------------- " + docs);
                             return {
                                 _id: doc._id,
                                 user_id: doc.user_id,
@@ -140,6 +141,7 @@ exports.att_save_or_update = function (req, res, next) {
 
         })
         .catch(err => {
+            console.log(err)
             res.status(500).json({
                 code: 0,
                 error: err

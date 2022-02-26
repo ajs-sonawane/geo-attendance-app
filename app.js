@@ -18,7 +18,7 @@ mongoose.connect(
 mongoose.Promise = global.Promise;
 
 app.use(morgan("dev"));
-app.use('/uploads', express.static('./uploads'));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -44,6 +44,7 @@ app.get("/", function (req, res, next) {
     res.sendFile(__dirname + "/initialroute.html");
 })
 app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
 
 app.use(function (req, res, next) {
     const error = Error("Not Found");
