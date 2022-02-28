@@ -8,6 +8,9 @@ router.get("/get_users", UserController.users_get_all);
 
 router.post("/get_employees", UserController.employees_get_all);
 
+router.post("/delete_user", UserController.user_delete);
+
+
 
 router.post("/signin", UserController.user_signin);
 

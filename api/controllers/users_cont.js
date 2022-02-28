@@ -232,3 +232,24 @@ exports.user_signup = function (req, res, next) {
 
 exports.users_reset_password = function (req, res, next) {
 };
+
+
+exports.user_delete = function (req, res, next) {
+    let user_id = req.body.user_id;
+
+    User.remove({
+        _id: user_id
+    }).exec().then(result => {
+        res.status(200).json({
+            code: 1,
+            message: "Deleted !!",
+            result: result
+            // deletedCount: result.deletedCount,
+
+        });
+    }).catch(err => {
+        res.status(500).json({
+            error: err
+        })
+    });
+}
