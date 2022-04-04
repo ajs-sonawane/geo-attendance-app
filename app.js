@@ -7,6 +7,8 @@ const mongoose = require("mongoose");
 // const profileRoute = require("./api/routes/profile");
 const userRoutes = require("./api/routes/user");
 const attRoutes = require("./api/routes/attendance");
+const liveTrackingRoutes = require("./api/routes/live_tracking");
+
 
 ////////////////////////////////////////////////////// mongoose CONNECT ////////////////////
 mongoose.connect(
@@ -39,6 +41,9 @@ app.use(function (req, res, next) {
 // app.use("/profile", profileRoute);
 app.use("/user", userRoutes);
 app.use("/att", attRoutes);
+app.use("/livetrackin", liveTrackingRoutes);
+
+
 
 app.get("/", function (req, res, next) {
     res.sendFile(__dirname + "/initialroute.html");
