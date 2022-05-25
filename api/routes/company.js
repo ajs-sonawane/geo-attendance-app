@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const UserController = require("../controllers/users_cont");
+const CompanyController = require("../controllers/company_cont");
 const multer = require("multer");
 
 //storage strategy >>
@@ -35,19 +35,14 @@ const upload = multer({
 });
 
 
-router.get("/get_users", UserController.users_get_all);
+router.get("/get_companies", CompanyController.get_all_companies);
 
-router.post("/get_employees", UserController.employees_get_all);
+router.get("/get_company_byid", CompanyController.company_get_byid);
 
-router.post("/delete_user", UserController.user_delete);
+router.post("/add_new_company", upload.single('company_image'), CompanyController.company_save);
 
-
-
-router.post("/signin", UserController.user_signin);
-
-router.post("/signup", upload.single('img_url'), UserController.user_signup);
-
-router.get("/reset_password", UserController.users_reset_password);
+router.post("/login_company", CompanyController.company_login);
+// router.post("/delete_company_byid", CompanyController.company_delete_byid);
 
 
 module.exports = router;

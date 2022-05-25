@@ -6,7 +6,7 @@ const userSchema = mongoose.Schema({
         ref: 'Company',
         required: true
     },
-    company_shift: {
+    shift: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'CompanyShifts',
         required: true
@@ -16,7 +16,8 @@ const userSchema = mongoose.Schema({
     designation: { type: String, },
     mobile: { type: String, },
     email: { type: String, },
-    password: { type: String, },
+    key: { type: String, },
+    passcode: { type: String, },
     user_profile_image: { type: String, },
 });
 

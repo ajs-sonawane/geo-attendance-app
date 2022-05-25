@@ -1,16 +1,20 @@
 const mongoose = require("mongoose");
 
 const companySchema = mongoose.Schema({
-    company_name: { type: String, required: true },
+    active: { type: Number, },
+    role: { type: String, },
+    company_name: { type: String, },
     company_mobile: { type: String, },
     company_email: { type: String, },
     comp_regd_location: { type: String, },
     company_image: { type: String, },
-    shifts: {
+    company_key: { type: String, },
+    company_pwd: { type: String, },
+    membership: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'CompanyShifts',
+        ref: 'Membership',
         required: true
-    },
+    }
 });
 
 module.exports = mongoose.model("Company", companySchema);

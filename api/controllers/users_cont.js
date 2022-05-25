@@ -1,12 +1,14 @@
 const User = require("../models/userModel");
+const Company = require("../models/companyModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const nodemailer = require('nodemailer');
 
 exports.users_get_all = function (req, res, next) {
 
     User.find()
-        .select("_id role name mobile email")
+        // .select("_id role name mobile email")
         .exec()
         .then(docs => {
             if (docs.length > 0) {
@@ -83,61 +85,128 @@ exports.employees_get_all = function (req, res, next) {
 
 exports.user_signin = function (req, res, next) {
 
-    let mobile = req.body.mobile;
-    let password = req.body.password;
+    let key = req.body.key;
+    let pwd = req.body.pwd;
 
-    User.find({ mobile: mobile })
-        // .exec()
-        .then(doc => {
-            if (doc.length < 1) {
-                return res.status(401).json({
-                    code: 0,
-                    message: "User not registered!",
-                    token: null
-                });
-            }
-            bcrypt.compare(password, doc[0].password, (err, result) => {
-                if (err) {
+    let split = key.split(".");
+
+    if (split[split.length - 1] === "company") {
+        //// COMPANY LOGIN >>
+
+        Company.find({ company_key: key })
+            // .exec()
+            .then(doc => {
+                if (doc.length < 1) {
+
                     return res.status(401).json({
-                        code: 0,
-                        message: "Auth Failed! ONE",
+                        code: 1,
+                        message: "User not registered!",
                         token: null
                     });
                 }
-                if (result) {
-                    const token = jwt.sign({
-                        mobile: doc[0].mobile,
-                        user_id: doc[0]._id
-                    }, "secret", {
-                        expiresIn: "1h"
-                    });
+                bcrypt.compare(pwd, doc[0].company_pwd, (err, result) => {
+                    if (err) {
+                        return res.status(401).json({
+                            code: 1,
+                            message: "Auth Failed! ONE",
+                            token: null
+                        });
+                    }
+                    if (result) {
+                        // get token >>
+                        const token = jwt.sign({
+                            company_key: doc[0].company_key,
+                            _id: doc[0]._id
+                        }, "secret", {
+                            expiresIn: "1h"
+                        });
+                        console.log("----------------------------------------------");
+                        console.log(doc);
 
-                    return res.status(200).json({
-                        code: 1,
-                        message: "Auth success",
-                        token: token,
-                        data: {
-                            user_id: doc[0]._id,
-                            role: doc[0].role,
-                            name: doc[0].name,
-                            mobile: doc[0].mobile,
-                            email: doc[0].email
-                        }
+                        return res.status(200).json({
+                            code: 1,
+                            message: "Auth success",
+                            token: token,
+                            result: doc
+                        });
+                    }
+                    res.status(401).json({
+                        code: 0,
+                        message: "Auth Failed! TWO",
+                        token: result
                     });
-                }
-                res.status(401).json({
+                });
+            }).catch(err => {
+                res.status(500).json({
                     code: 0,
-                    message: "Auth Failed! TWO",
-                    token: doc
+                    message: "ERROR",
+                    error: err
                 });
             });
-        }).catch(err => {
-            res.status(500).json({
-                code: 1,
-                message: "ERROR",
-                error: err
+
+
+    } else {
+        /// USER LOGIN >>>
+
+
+        User.find({ key: key })
+            // .exec()
+            .then(doc => {
+                if (doc.length < 1) {
+                    return res.status(401).json({
+                        code: 0,
+                        message: "User not registered!",
+                        token: null
+                    });
+                }
+                bcrypt.compare(pwd, doc[0].passcode, (err, result) => {
+                    if (err) {
+                        return res.status(401).json({
+                            code: 0,
+                            message: "Auth Failed! ONE",
+                            token: null
+                        });
+                    }
+                    if (result) {
+                        // get token >>
+                        const token = jwt.sign({
+                            mobile: doc[0].mobile,
+                            user_id: doc[0]._id
+                        }, "secret", {
+                            expiresIn: "1h"
+                        });
+
+                        return res.status(200).json({
+                            code: 1,
+                            message: "Auth success",
+                            token: token,
+                            data: doc
+                        });
+                    }
+                    res.status(401).json({
+                        code: 0,
+                        message: "Auth Failed! TWO",
+                        token: doc
+                    });
+                });
+            }).catch(err => {
+                res.status(500).json({
+                    code: 0,
+                    message: "ERROR",
+                    error: err
+                });
             });
-        });
+
+
+
+
+
+
+
+    }
+
+
+
 };
 
 exports.user_signup = function (req, res, next) {
@@ -145,90 +214,153 @@ exports.user_signup = function (req, res, next) {
     let role = req.body.role;
     let name = req.body.name;
     let mobile = req.body.mobile;
+    let desig = req.body.designation;
     let email = req.body.email;
     let password = req.body.password;
+    let company = req.body.company_id;
+    let shift = req.body.shift_id;
+    let img = req.body.img_url;
 
-    User.find({ email: email }).exec().then(doc => {
-        if (doc.length >= 1) {
-            return res.status(200).json({
-                code: 0,
-                message: "E-Mail is already registered, Please Login.",
-                result: {}
-            });
-        } else {
-            bcrypt.hash(password, 10, (err, hash) => {
-                if (err) {
-                    return res.status(500).json({
-                        code: 0,
-                        message: "ERROR",
-                        error: err
-                    });
-                } else {
+    User.find({ mobile: mobile, email: email })
+        .select("_id company shift name role designation mobile email key user_profile_image")
+        .populate("company shift")
+        .exec()
+        .then(docs => {
+            if (docs.length > 0) {
+                res.status(200).json({
+                    code: 1,
+                    count: docs.length,
+                    message: "User Already Registered with mobile: " + docs[0].mobile + " & email: " + docs[0].email,
+                    result: docs[0]
+                });
+            } else {
 
-                    const user = User(
-                        {
-                            _id: mongoose.Types.ObjectId(),
-                            role: role,
-                            name: name,
-                            mobile: mobile,
-                            email: email,
-                            password: hash,
-                        }
-                    );
-                    user.save()
-                        // .select("_id first_name last_name")
-                        // .exec()
-                        .then(result => {
+                User.find({ mobile: mobile })
+                    .select("_id company shift name role designation mobile email key user_profile_image")
+                    .exec()
+                    .then(docs => {
+                        if (docs.length > 0) {
                             res.status(200).json({
                                 code: 1,
-                                message: "user registered successfully",
-                                result: {
-                                    _id: result._id,
-                                    role: result.role,
-                                    name: result.name,
-                                    mobile: result.mobile,
-                                    email: result.email,
-                                    password: result.password
-                                }
+                                count: docs.length,
+                                message: "User Already Registered with mobile: " + docs[0].mobile,
+                                result: docs[0]
                             });
-                        })
-                        .catch(err => {
-                            console.log(err)
-                            res.status(500).json({
-                                code: 0,
-                                error: err
-                            });
-                        });
+                        } else {
+                            User.find({ email: email })
+                                .select("_id company shift name role designation mobile email key user_profile_image")
+                                .exec()
+                                .then(docs => {
+                                    if (docs.length > 0) {
+                                        res.status(200).json({
+                                            code: 1,
+                                            count: docs.length,
+                                            message: "User Already Registered with email: " + docs[0].email,
+                                            result: docs[0]
+                                        });
+                                    } else {
+                                        bcrypt.hash(password, 10, (err, hash) => {
+                                            if (err) {
+                                                console.log(err + " error on pwd " + password + " " + email);
+                                                return res.status(500).json({
+                                                    code: 0,
+                                                    message: "ERROR",
+                                                    error: err
+                                                });
+                                            } else {
+                                                console.log(password+" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                                                Company.find({ _id: company }).exec().then(doc => {
+                                                    console.log(doc.length + " DOCS");
+                                                    if (doc.length >= 1) {
+                                                        var company_name = doc[0].company_name;
 
-                }
-            });
-        }
-    });
+
+                                                        var key = generateKey(email, company_name);
+
+                                                        const user = User(
+                                                            {
+                                                                _id: mongoose.Types.ObjectId(),
+                                                                role: role,
+                                                                name: name,
+                                                                mobile: mobile,
+                                                                designation: desig,
+                                                                email: email,
+                                                                key: key,
+                                                                passcode: hash,
+                                                                company: company,
+                                                                shift: shift,
+                                                                user_profile_image: img
+                                                            }
+                                                        );
+                                                        user.save()
+                                                            // .select("_id first_name last_name")
+                                                            // .exec()
+                                                            .then(result => {
+
+                                                                /// send email to user with creds >>>>>>>>>>>
+                                                                // >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> sending email >>
+                                                                sendEmail(email, key, password);
+                                                                res.status(200).json({
+                                                                    code: 1,
+                                                                    message: "user registered successfully",
+                                                                    result: result
+                                                                });
+                                                            })
+                                                            .catch(err => {
+                                                                console.log(err + "catch on save")
+                                                                res.status(500).json({
+                                                                    code: 0,
+                                                                    error: err
+                                                                });
+                                                            });
 
 
+                                                    } else {
+                                                        console.log("else on company find");
+                                                    }
 
-    // ProductDetail.find({
-    //     company_name: companyName, particular_name: particularName, subtype_one_name: subtypeONEName,
-    //     subtype_two_name: subtypeTWOName, subtype_three_name: subtypeTHREEName, subtype_four_name: subtypeFOURName,
-    //     subtype_five_name: subtypeFIVEName,
-    // }).exec().then(result => {
-    //     if (result.length == 0) {
-    //     } else {
-    //         res.status(200).json({
-    //             code: 1,
-    //             message: "product already exists !!",
-    //             result: result
-    //         });
-    //     }
-    // }).catch(err => {
-    //     console.log(err)
-    //     res.status(500).json({
-    //         code: 0,
-    //         error: err
-    //     });
-    // });
+                                                });
+                                            }
+                                        });
+                                    }
+                                });
 
-};
+                            function generateKey(email, compName) {
+                                const myArray = email.split("@");
+                                var key = myArray[0] + "@yt." + compName;
+                                return key;
+                            }
+
+                            function sendEmail(email, key, pwd) {
+                                var transporter = nodemailer.createTransport({
+                                    service: 'gmail',
+                                    auth: {
+                                        user: 'contact.youthtechnology@gmail.com',
+                                        pass: 'admin12345@'
+                                    }
+                                });
+
+                                var mailOptions = {
+                                    from: 'contact.youthtechnology@gmail.com',
+                                    to: email,
+                                    subject: 'Login Credentials',
+                                    html: '<h1>Welcome to YOUTH TECHNOLOGY</h1><h4>part of INCRETECH PVT. LTD.</h4><p>Your login credentials:</p><p> LOGIN KEY : <h5>' + key + '</h5></p><p>LOGIN PASSWORD : <h5>' + pwd + '</h5></p>'
+                                };
+
+                                transporter.sendMail(mailOptions, function (error, info) {
+                                    if (error) {
+                                        console.log(error);
+                                    } else {
+                                        console.log('Email sent: ' + info.response);
+                                    }
+                                });
+                            }
+
+                        };
+                    });
+            }
+        });
+}
 
 exports.users_reset_password = function (req, res, next) {
 };
