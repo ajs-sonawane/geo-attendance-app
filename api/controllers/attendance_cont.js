@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 
 const Att = require("../models/attendanceModel");
+const ltm = require("../models/liveTrackingModel");
+
 
 exports.get_att_by_userid = function (req, res, next) {
 
@@ -44,107 +46,107 @@ exports.att_save = function (req, res, next) {
 
     // let coordinates = req.body.coordinates;
 
+
+
     Att.find({ user: userID })
         .exec()
         .then(docs => {
-            
-            console.log("1st >>>>>>>>>>>>>>>>>>>>>> "+docs);
-
-
+            // console.log(docs);
 
             if (docs.length > 0) {
 
+                let loginDateOnly = logINDateTime.split(" ")[0];
+                let logoutDateOnly = logOUTDateTime.split(" ")[0];
 
-                if (logINDateTime == "") {
+                // 1. search user by user id
+                // 2. user att list shown
+                // 3. search login date if exists' in att list ?
+                // 4. if exists > then check if logout date exists ?
+                //      a. if logout date also exists > show user att already submitted for the day.
+                //      b. if logout date is empty > user must logout > update logout
+                // 6. 
 
-                    console.log("inside logINDateTime == null");
+                const op = docs.filter(function (attObj) {
+                    if (logINDateTime === "") {
+                        return attObj["login_datetime"].split(" ")[0] === logoutDateOnly;
+                    }
+                    return;
 
-                    var date = logOUTDateTime.split(" ", 2);
-                    console.log("DATE >>>>>>> " + date[0]);
-                    // const regex = new RegExp(date[0], 'i');
-                    // console.log("data .....................  " + date[0] + " ---- " + regex + " ---- " + logOUTDateTime.includes(date[0]));
-                    Att.find({ user: userID, logout_datetime: date[0] })
+                });
+                // console.log("OUTPUT >> " + op);
+                if (op.length == 1) {
+                    // console.log("OUTPUT >> " + op[0]["_id"]);
+                    Att.updateMany({ _id: op[0]["_id"] },
+                        {
+                            logout_datetime: logOUTDateTime,
+                            logout_cords: logOUTCords
+                        })
                         .exec()
-                        .then(docs => {
-                           
-                            if (docs.length == 1) {
+                        .then(result => {
+
+                            // updating status in live tracking model ...
+                            ltm.updateMany({ user: userID }, {
+                                status: "OFFLINE"
+                            }).exec().then(updateResult => {
 
                                 res.status(200).json({
-                                    code: 0,
-                                    message: "Already Logged OUT ."
+                                    code: 1,
+                                    message: "LOGOUT success and updated STATUS as 'OFFLINE'",
+                                    result: result
                                 });
-                            } else {
-                                Att.updateMany({ user: userID },
-                                    {
-                                        logout_datetime: logOUTDateTime,
-                                        logout_cords: logOUTCords
-                                    })
-                                    .exec()
-                                    .then(result => {
-                                        res.status(200).json({
-                                            code: 1,
-                                            message: "LOGOUT success",
-                                            result: result
-                                        });
-                                    })
-                                    .catch(err => {
-                                        res.status(200).json({
-                                            code: 0,
-                                            error: err
-                                        });
-                                    });
-                            }
+
+                            }).catch(err => {
+                                res.status(200).json({
+                                    code: 0,
+                                    error: err
+                                });
+                            });
+
 
                         })
-
-
+                        .catch(err => {
+                            res.status(200).json({
+                                code: 0,
+                                error: err
+                            });
+                        });
 
 
 
                 } else {
-                    console.log("inside logOUTDateTime == null");
-
-                    var date = logINDateTime.split(" ", 2);
-                    console.log("DATE >>>>>>> " + date[0]);
-                    const regex = new RegExp(date[0], 'i');
-
-                    Att.find({ user: userID, login_datetime: regex })
-                        .exec()
-                        .then(docs => {
-                            if (docs.length == 1) {
-
-                                res.status(200).json({
-                                    code: 0,
-                                    message: "Already Logged IN ."
-                                });
-                            } else {
-                                Att.updateMany({ user: userID },
-                                    {
-                                        login_datetime: logINDateTime,
-                                        login_cords: logINCords
-                                    })
-                                    .exec()
-                                    .then(result => {
-                                        res.status(200).json({
-                                            code: 1,
-                                            message: "LOGIN success",
-                                            result: result
-                                        });
-                                    })
-                                    .catch(err => {
-                                        res.status(200).json({
-                                            code: 0,
-                                            error: err
-                                        });
-                                    });
-                            }
-
+                    console.log("ELSE >> " + op.length);
+                    // add new  att /
+                    const att = Att(
+                        {
+                            _id: mongoose.Types.ObjectId(),
+                            user: userID,
+                            self_image_file: req.file == undefined ? "" : selfie.replace(/\\/g, "/"),
+                            login_datetime: logINDateTime,
+                            logout_datetime: logOUTDateTime,
+                            login_cords: logINCords,
+                            logout_cords: logOUTCords,
+                        }
+                    );
+                    att.save()
+                        .then(result => {
+                            res.status(200).json({
+                                code: 1,
+                                message: "Saved!",
+                                result: result
+                            });
                         })
+                        .catch(err => {
+                            console.log(err)
+                            res.status(500).json({
+                                code: 0,
+                                error: err
+                            });
+                        });
 
                 }
 
-
             } else {
+
                 const att = Att(
                     {
                         _id: mongoose.Types.ObjectId(),
@@ -171,7 +173,10 @@ exports.att_save = function (req, res, next) {
                             error: err
                         });
                     });
+
+
             }
+
 
         })
         .catch(err => {
@@ -181,103 +186,5 @@ exports.att_save = function (req, res, next) {
                 error: err
             });
         });
-
-
-
-
-
-
-
-
-
-
-
-    // var date = datetime.split(" ", 2);
-    // // console.log("DATE >>>>>>> " + date[0]);
-    // // console.log("datetime >>>>>>> " + datetime);
-    // const regex = new RegExp(date[0], 'i');
-    // Att.find({ user_id: userID, datetime: regex })
-    //     .exec()
-    //     .then(docs => {
-    //         if (docs.length > 0) {
-    //             // console.log(" >>>> datetime >> TRUE");
-    //             res.status(200).json({
-    //                 code: 0,
-    //                 message: "Attendance for today already submitted."
-    //             });
-
-    // Profile.updateMany({ datetime: datetime },
-    //     {
-    //         selfie: selfie,
-    //         designation: req.body.designation,
-    //         location: req.body.location,
-    //         objective: req.body.objective,
-    //         profile_image: req.file.path
-    //     })
-    //     .exec()
-    //     .then(result => {
-    //         res.status(200).json(result);
-    //     })
-    //     .catch(err => {
-    //         res.status(200).json({
-    //             code: 0,
-    //             error: err
-    //         });
-    //     });
-    // res.status(200).json(response);
-    //         } else {
-    //             // console.log(" >>>> datetime >> FALSE");
-    //             // console.log(">>>>> selfie <<<< " + selfie);
-
-    //             // if (selfie == undefined) {
-    //             // var split = selfie == undefined ? "" : selfie.replace(/\\/g, "/");
-    //             // }
-
-    //             // console.log("split >>> " + split);
-    //             const att = Att(
-    //                 {
-    //                     _id: mongoose.Types.ObjectId(),
-    //                     user_id: userID,
-    //                     selfie: req.file == undefined ? "" : selfie.replace(/\\/g, "/"),
-    //                     datetime: datetime,
-    //                     area: area,
-    //                     coordinates: coordinates
-    //                 }
-    //             );
-
-    //             att.save()
-    //                 .then(result => {
-    //                     res.status(200).json({
-    //                         code: 1,
-    //                         message: "Saved!",
-    //                         result: {
-    //                             _id: result._id,
-    //                             user_id: result.user_id,
-    //                             selfie: result.selfie,
-    //                             datetime: result.datetime,
-    //                             area: result.area,
-    //                             coordinates: result.coordinates
-    //                         }
-    //                     });
-    //                 })
-    //                 .catch(err => {
-    //                     console.log(err)
-    //                     res.status(500).json({
-    //                         code: 0,
-    //                         error: err
-    //                     });
-    //                 });
-
-    //         }
-
-    //     })
-    //     .catch(err => {
-    //         console.log(err)
-    //         res.status(500).json({
-    //             code: 0,
-    //             error: err
-    //         });
-    //     });
-
 
 }

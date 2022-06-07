@@ -22,7 +22,7 @@ exports.update_location = function (req, res, next) {
 
             // for (let i = 0; i < docs.length; i++) {
             //     const element = docs[i];
-                
+
             // }
             LiveTrackingModel.remove({
                 user: userID
@@ -114,7 +114,7 @@ exports.get_loc_by_userid = function (req, res, next) {
     let userID = req.body.user_id;
 
     LiveTrackingModel.find({ user: userID })
-        .populate({ path: 'user' })
+        .populate("user")
         .select("user area datetime coordinates status")
         .exec()
         .then(docs => {
@@ -133,7 +133,7 @@ exports.get_loc_by_userid = function (req, res, next) {
                     code: 0,
                     count: docs.length,
                     message: "No enries found",
-                    result: docs
+                    result: {}
                 });
             }
 

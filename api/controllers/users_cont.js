@@ -99,15 +99,15 @@ exports.user_signin = function (req, res, next) {
                 if (doc.length < 1) {
 
                     return res.status(401).json({
-                        code: 1,
-                        message: "User not registered!",
+                        code: 0,
+                        message: "Company not registered!",
                         token: null
                     });
                 }
                 bcrypt.compare(pwd, doc[0].company_pwd, (err, result) => {
                     if (err) {
                         return res.status(401).json({
-                            code: 1,
+                            code: 0,
                             message: "Auth Failed! ONE",
                             token: null
                         });
@@ -145,6 +145,7 @@ exports.user_signin = function (req, res, next) {
             });
 
 
+
     } else {
         /// USER LOGIN >>>
 
@@ -180,7 +181,7 @@ exports.user_signin = function (req, res, next) {
                             code: 1,
                             message: "Auth success",
                             token: token,
-                            data: doc
+                            result: doc
                         });
                     }
                     res.status(401).json({
@@ -209,7 +210,7 @@ exports.user_signin = function (req, res, next) {
 
 };
 
-exports.user_signup = function (req, res, next) {
+exports.emp_register = function (req, res, next) {
 
     let role = req.body.role;
     let name = req.body.name;
@@ -268,7 +269,7 @@ exports.user_signup = function (req, res, next) {
                                                     error: err
                                                 });
                                             } else {
-                                                console.log(password+" >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+                                                console.log(password + " >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
                                                 Company.find({ _id: company }).exec().then(doc => {
                                                     console.log(doc.length + " DOCS");
                                                     if (doc.length >= 1) {

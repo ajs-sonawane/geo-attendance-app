@@ -13,4 +13,4 @@ const liveTrackingSchema = mongoose.Schema({
 
 });
 
-module.exports = mongoose.model("LiveTracking", liveTrackingSchema);
+module.exports = mongoose.model("LiveTracking", liveTrackingSchema); 

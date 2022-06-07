@@ -45,7 +45,7 @@ router.post("/delete_user", UserController.user_delete);
 
 router.post("/signin", UserController.user_signin);
 
-router.post("/signup", upload.single('img_url'), UserController.user_signup);
+router.post("/emp_register", upload.single('img_url'), UserController.emp_register);
 
 router.get("/reset_password", UserController.users_reset_password);
 

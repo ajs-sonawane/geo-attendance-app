@@ -2,9 +2,9 @@ const CompShifts = require("../models/companyShiftsModel");
 const mongoose = require("mongoose");
 
 exports.get_shifts_by_company_id = function (req, res, next) {
-    let compId = req.body.company_id;
+    let compId = req.body.company;
 
-    CompShifts.find({ _id: shiftId, company: compId })
+    CompShifts.find({ company: compId })
         .select("_id shift_name shift_time company")
         .populate("company")
         .exec()
