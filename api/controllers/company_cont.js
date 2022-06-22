@@ -217,7 +217,7 @@ exports.company_save = function (req, res, next) {
             service: 'gmail',
             auth: {
                 user: 'contact.youthtechnology@gmail.com',
-                pass: 'admin12345@'
+                pass: 'qumxshcutavcafgn'
             }
         });
 
@@ -231,6 +231,7 @@ exports.company_save = function (req, res, next) {
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
                 console.log(error);
+                console.log(info);
             } else {
                 console.log('Email sent: ' + info.response);
             }

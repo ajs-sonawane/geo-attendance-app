@@ -337,7 +337,7 @@ exports.emp_register = function (req, res, next) {
                                     service: 'gmail',
                                     auth: {
                                         user: 'contact.youthtechnology@gmail.com',
-                                        pass: 'admin12345@'
+                                        pass: 'qumxshcutavcafgn'
                                     }
                                 });
 
