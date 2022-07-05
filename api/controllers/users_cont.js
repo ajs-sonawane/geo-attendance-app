@@ -5,18 +5,20 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const nodemailer = require('nodemailer');
 
-exports.users_get_all = function (req, res, next) {
+exports.employees_by_compid = function (req, res, next) {
 
-    User.find()
+    User.find({ company: req.params.comp_id })
         // .select("_id role name mobile email")
+        .populate("company shift")
         .exec()
+       
         .then(docs => {
             if (docs.length > 0) {
                 const response = {
                     code: 1,
                     count: docs.length,
                     message: "success",
-                    data: docs
+                    result: docs
                     // .map(doc => {
                     //     return {
                     //         user_id: doc._id,
@@ -32,7 +34,7 @@ exports.users_get_all = function (req, res, next) {
                 res.status(200).json({
                     code: 0,
                     message: "No enries found",
-                    data: docs
+                    result: docs
                 });
             }
 
@@ -43,6 +45,46 @@ exports.users_get_all = function (req, res, next) {
             });
         });
 };
+
+exports.employee_by_id = function (req, res, next) {
+
+    User.find({ _id: req.params.id })
+        // .select("_id role name mobile email")
+        .exec()
+        .then(docs => {
+            if (docs.length > 0) {
+                const response = {
+                    code: 1,
+                    count: docs.length,
+                    message: "success",
+                    result: docs
+                    // .map(doc => {
+                    //     return {
+                    //         user_id: doc._id,
+                    //         role: doc.role,
+                    //         name: doc.name,
+                    //         mobile: doc.mobile,
+                    //         email: doc.email
+                    //     }
+                    // })
+                };
+                res.status(200).json(response);
+            } else {
+                res.status(200).json({
+                    code: 0,
+                    message: "No enries found",
+                    result: docs
+                });
+            }
+
+        })
+        .catch(err => {
+            res.status(500).json({
+                error: err
+            });
+        });
+};
+
 
 exports.employees_get_all = function (req, res, next) {
 

@@ -35,9 +35,12 @@ const upload = multer({
 });
 
 
-router.get("/get_users", UserController.users_get_all);
+// router.get("/get_users", UserController.users_get_all);
 
 router.post("/get_employees", UserController.employees_get_all);
+
+router.get("/get_employees_by_compid/:comp_id", UserController.employees_by_compid);
+router.get("/get_employee_by_id/:id", UserController.employee_by_id);
 
 router.post("/delete_user", UserController.user_delete);
 
